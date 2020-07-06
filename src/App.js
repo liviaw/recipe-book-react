@@ -1,5 +1,4 @@
 import React, {useEffect, useState} from 'react';
-import logo from './logo.svg';
 import './App.css';
 import Recipe from './Recipe';
 
@@ -11,11 +10,11 @@ function App() {
   const [search, setSearch] = useState("");
   const [query, setQuery] = useState("chicken");
 
-  const request = `https://api.edamam.com/search?q=${search}&app_id=${APP_ID}&app_key=${APP_KEY}`;
+  const request = `https://api.edamam.com/search?q=${query}&app_id=${APP_ID}&app_key=${APP_KEY}`;
   useEffect(() => {
     console.log(`b4 Effect use`);
     getRecipes();
-  }, [search]);
+  }, [query]);
 
   const getRecipes= async () => {
     const response = await fetch(request);
@@ -26,18 +25,20 @@ function App() {
 
   const updateSearch = (event) => {
     event.preventDefault();
-    console.log("change");
     setSearch(event.target.value);
-    console.log("serhing.. " + search);
   }
 
   const getSearch = (event) => {
+    // prevent default will not stop useEffect, but it stops you from automatically
+    // refreshing the page when submitting
     event.preventDefault();
+    setQuery(search);
+    setSearch("");
   }
 
   return (
     <div className="App">
-      <form className="search-form">
+      <form className="search-form" onSubmit={getSearch}>
         <input className="search-bar" type="text" value={search} onChange={updateSearch}/>
         <button 
           className="search-button" 
@@ -45,12 +46,15 @@ function App() {
           Search
         </button>
       </form>
-      {recipes.map((recipe, index) => (
-        <Recipe key={recipe.recipe.label} 
-          title={recipe.recipe.label} 
-          calories={recipe.recipe.calories}
-          image={recipe.recipe.image}/>
-      ))}
+      <div className="recipes">
+        {recipes.map((recipe, index) => (
+          <Recipe key={recipe.recipe.label} 
+            title={recipe.recipe.label} 
+            calories={recipe.recipe.calories}
+            image={recipe.recipe.image}
+            ingredients={recipe.recipe.ingredients}/>
+        ))}
+      </div>
     </div>
   );
 }
